@@ -10,18 +10,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author blanc
- */
+
 public class RegistroFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RegistroFrame.class.getName());
     private String imagenSeleccionada = "";
+    private UsuarioService usuarioService = new UsuarioService();
+    private File archivoFotoSeleccionado = null;
     /**
      * Creates new form RegistroFrame
      */
@@ -161,82 +160,52 @@ public class RegistroFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_fieldPasswordActionPerformed
 
     private void btnSeleccionarFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarFotoActionPerformed
-        if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-        File file = jFileChooser.getSelectedFile();
-        String fileName = file.getName();
-
-        // Validar que sea una imagen
-        if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
-            // Copiar la imagen al proyecto
-            if (!copiarArchivo(file.toPath(), fileName)) return;
-
+   
+    if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        
+        this.archivoFotoSeleccionado = jFileChooser.getSelectedFile();
+        
+       
+        String nombre = archivoFotoSeleccionado.getName().toLowerCase();
+        if (nombre.endsWith(".jpg") || nombre.endsWith(".png") || nombre.endsWith(".jpeg")) {
             
-            panelFoto.setIcon(
-                new javax.swing.ImageIcon(EncuestaService.IMG_PATH + fileName)
-            );
-            panelFoto.updateUI();
-
+           
+            try {
+                javax.swing.ImageIcon icon = new javax.swing.ImageIcon(archivoFotoSeleccionado.getAbsolutePath());
+                panelFoto.setIcon(icon);
+                panelFoto.repaint(); 
+            } catch (Exception e) {
+                System.out.println("No se pudo cargar la vista previa");
+            }
             
-            this.imagenSeleccionada = fileName;
         } else {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar una imagen (png, jpg, jpeg).");
+            JOptionPane.showMessageDialog(this, "Por favor selecciona un archivo de imagen válido.");
+            this.archivoFotoSeleccionado = null; // Limpiamos si no es imagen
         }
-    }
+     }
+
     }//GEN-LAST:event_btnSeleccionarFotoActionPerformed
 
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
-    String username = fieldUsuario.getText();
-        String password = new String(fieldPassword.getPassword());
+        String nombre = fieldUsuario.getText();
+        String pass = new String(fieldPassword.getPassword());
 
-        
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El usuario y la contraseña no pueden estar vacíos.", "Error", JOptionPane.WARNING_MESSAGE);
+        boolean esAdmin = false; 
+
+        if (nombre.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Usuario y Contraseña son obligatorios");
             return;
         }
 
-        if (this.imagenSeleccionada.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, selecciona una foto de perfil.", "Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        Usuario u = new Usuario(nombre, pass, esAdmin);
+        boolean exito = usuarioService.crearUsuario(u, this.archivoFotoSeleccionado);
 
-       
-        UsuarioService service = new UsuarioService();
-
-        
-        ArrayList<Usuario> usuarios = service.getUsuarios();
-
-        
-        boolean seraAdmin = usuarios.isEmpty(); 
-        boolean usuarioExiste = false;
-
-        
-        for (Usuario u : usuarios) {
-            if (u.getNombreUsuario().equals(username)) {
-                usuarioExiste = true;
-                break;
-            }
-        }
-
-        if (usuarioExiste) {
-            JOptionPane.showMessageDialog(this, "El nombre de usuario ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (exito) {
+            JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!");
+            this.dispose(); 
         } else {
-            
-            Usuario nuevoUsuario = new Usuario(username, password, seraAdmin);
-            nuevoUsuario.setImagen(this.imagenSeleccionada);
-
-            
-            if (service.crearUsuario(nuevoUsuario)) {
-                JOptionPane.showMessageDialog(this, "¡Usuario registrado con éxito!", "Registro", JOptionPane.INFORMATION_MESSAGE);
-                
-                if (seraAdmin) {
-                    JOptionPane.showMessageDialog(this, "¡Felicidades! Eres el primer usuario, se te ha asignado rol de Administrador.", "Admin Creado", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al registrar.\n(Verifica que el servidor PHP esté corriendo)");
                 }
-                
-                this.dispose(); 
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al guardar el usuario en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     /**

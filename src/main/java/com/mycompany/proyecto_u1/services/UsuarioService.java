@@ -1,105 +1,79 @@
 package com.mycompany.proyecto_u1.services;
 
-import com.mycompany.proyecto_u1.db.Conexion;
+import com.google.gson.Gson;
 import com.mycompany.proyecto_u1.models.Usuario;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
+import java.io.File;
+// Imports de Apache HttpClient 5 (Asegúrate de tener la dependencia en pom.xml)
+import org.apache.hc.client5.http.entity.mime.FileBody;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.client5.http.fluent.Form;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 
 public class UsuarioService {
     
     
-    private Conexion conexion = new Conexion();
+    private final String URL_BASE = "http://localhost:3307/PROYECTO_U1/";
 
-   
+    
     public Usuario validarUsuario(String nombreUsuario, String password) {
         Usuario user = null;
-        
-        
-        String sql = "SELECT * FROM usuarios WHERE nombre_usuario = ? AND password = SHA2(?, 256)";
-
         try {
-            Connection con = conexion.open();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, nombreUsuario);
-            ps.setString(2, password); 
+            
+            String respuesta = Request.post(URL_BASE + "login.php")
+                .bodyForm(Form.form()
+                    .add("usuario", nombreUsuario)
+                    .add("password", password)
+                    .build())
+                .execute().returnContent().asString();
 
-            ResultSet rs = ps.executeQuery();
+            
+            System.out.println("Respuesta Login: " + respuesta);
 
-            if (rs.next()) {
-                user = new Usuario();
-                user.setNombreUsuario(rs.getString("nombre_usuario"));
-                user.setPassword(rs.getString("password")); // Viene encriptada
-                user.setEsAdmin(rs.getBoolean("es_admin"));
-                user.setImagen(rs.getString("imagen"));
+            if (!respuesta.contains("\"error\"")) {
+                user = new Gson().fromJson(respuesta, Usuario.class);
             }
-
-            rs.close();
-            ps.close();
-            con.close();
-
         } catch (Exception e) {
-            System.out.println("Error en validarUsuario: " + e.getMessage());
+            e.printStackTrace();
         }
-
         return user;
     }
 
     
-    public boolean crearUsuario(Usuario usuario) {
-       
-        String sql = "INSERT INTO usuarios (id, nombre_usuario, password, es_admin, imagen) VALUES (UUID(), ?, SHA2(?, 256), ?, ?)";
-        
+    public boolean crearUsuario(Usuario usuario, File archivoImagen) {
         try {
-            Connection con = conexion.open();
-            PreparedStatement ps = con.prepareStatement(sql);
             
-            ps.setString(1, usuario.getNombreUsuario());
-            ps.setString(2, usuario.getPassword()); // Se envía plana, MySQL la encripta
-            ps.setBoolean(3, usuario.isEsAdmin());
-            ps.setString(4, usuario.getImagen());
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            
+            
+            builder.addPart("usuario", new StringBody(usuario.getNombreUsuario(), ContentType.TEXT_PLAIN));
+            builder.addPart("password", new StringBody(usuario.getPassword(), ContentType.TEXT_PLAIN));
+            // Convertimos el booleano a "1" o "0" para PHP
+            builder.addPart("es_admin", new StringBody(usuario.isEsAdmin() ? "1" : "0", ContentType.TEXT_PLAIN));
 
-            int rowsAffected = ps.executeUpdate();
+            // Agregamos la foto SOLO si existe
+            if (archivoImagen != null && archivoImagen.exists()) {
+                builder.addPart("imagen", new FileBody(archivoImagen));
+            }
 
-            ps.close();
-            con.close();
+            
+            HttpEntity entidadCompleta = builder.build();
 
-            return rowsAffected > 0;
+            
+            String respuesta = Request.post(URL_BASE + "usuario_insertar.php")
+                .body(entidadCompleta)
+                .execute().returnContent().asString();
+
+            System.out.println("Respuesta Registro: " + respuesta);
+
+           
+            return respuesta.contains("success");
 
         } catch (Exception e) {
-            System.out.println("Error en crearUsuario: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
-    }
-    
-    
-    public ArrayList<Usuario> getUsuarios() {
-        ArrayList<Usuario> lista = new ArrayList<>();
-        String sql = "SELECT * FROM usuarios";
-        
-        try {
-            Connection con = conexion.open();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            
-            while(rs.next()) {
-                Usuario u = new Usuario();
-                u.setNombreUsuario(rs.getString("nombre_usuario"));
-                u.setPassword(rs.getString("password"));
-                u.setEsAdmin(rs.getBoolean("es_admin"));
-                u.setImagen(rs.getString("imagen"));
-                lista.add(u);
-            }
-            
-            rs.close();
-            ps.close();
-            con.close();
-            
-        } catch (Exception e) {
-            System.out.println("Error en getUsuarios: " + e.getMessage());
-        }
-        
-        return lista;
     }
 }
