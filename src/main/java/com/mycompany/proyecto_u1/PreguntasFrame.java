@@ -3,16 +3,18 @@ package com.mycompany.proyecto_u1;
 import com.mycompany.proyecto_u1.models.Encuesta;
 import com.mycompany.proyecto_u1.models.Pregunta;
 import com.mycompany.proyecto_u1.services.EncuestaService;
+import java.io.File;
 import javax.swing.DefaultListModel; 
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
-import java.util.ArrayList;
+
 
 public class PreguntasFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(PreguntasFrame.class.getName());
      private CrearEncuestaFrame parentFrame; 
     private Encuesta encuesta;
+    private File archivoImagen;
     
     public PreguntasFrame() {
          initComponents();
@@ -22,12 +24,10 @@ public class PreguntasFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
     
-  public PreguntasFrame(CrearEncuestaFrame parent, Encuesta encuesta) {
+    public PreguntasFrame(Encuesta encuesta, File archivoImagen) {
         this(); 
-        
-        this.parentFrame = parent;
         this.encuesta = encuesta;
-
+        this.archivoImagen = archivoImagen; 
         setTitle("Añadir Preguntas a: " + this.encuesta.getTitulo());
     }
 
@@ -150,7 +150,7 @@ public class PreguntasFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAgregarComplejaActionPerformed
 
     private void btnFinalizarEncuestaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarEncuestaActionPerformed
-   // Validar que la encuesta tenga al menos una pregunta
+   
         if (this.encuesta.getPreguntas().isEmpty()) {
             JOptionPane.showMessageDialog(
                 this, 
@@ -161,14 +161,13 @@ public class PreguntasFrame extends javax.swing.JFrame {
             return; 
         }
 
-        
         EncuestaService service = new EncuestaService();
 
-        
-        if (service.crearEncuesta(this.encuesta)) {
+         
+        if (service.crearEncuesta(this.encuesta, this.archivoImagen)) {
             JOptionPane.showMessageDialog(
                 this, 
-                "¡Encuesta guardada con éxito en la Base de Datos!", 
+                "¡Encuesta guardada con éxito en el Servidor!", 
                 "Éxito", 
                 JOptionPane.INFORMATION_MESSAGE
             );
@@ -177,7 +176,7 @@ public class PreguntasFrame extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(
                 this, 
-                "Error: No se pudo guardar la encuesta en la base de datos.", 
+                "Error: No se pudo guardar la encuesta. Verifica la consola.", 
                 "Error de Guardado", 
                 JOptionPane.ERROR_MESSAGE
             );

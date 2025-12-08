@@ -1,216 +1,115 @@
 package com.mycompany.proyecto_u1.services;
 
-import com.mycompany.proyecto_u1.db.Conexion;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mycompany.proyecto_u1.models.Encuesta;
-import com.mycompany.proyecto_u1.models.Pregunta;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.io.File;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+// Imports de Apache HttpClient 5
+import org.apache.hc.client5.http.entity.mime.FileBody;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.client5.http.fluent.Form;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 
 public class EncuestaService {
 
     
+    private final String URL_BASE = "http://localhost/PROYECTO_U1/";
+    
+    // Ruta local por si guardar temporales ...
     public static final String IMG_PATH = "src/main/java/com/mycompany/proyecto_u1/images/";
-    
-    
-    private Conexion conexion = new Conexion();
 
     
-    public ArrayList<Encuesta> getEncuestas() {
-        ArrayList<Encuesta> lista = new ArrayList<>();
-        String sql = "SELECT * FROM encuestas";
-
+    // -CREAR ENCUESTA (JSON de Preguntas + Archivo de Imagen) ---
+    public boolean crearEncuesta(Encuesta encuesta, File archivoImagen) {
         try {
-            Connection con = conexion.open();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                
-                String titulo = rs.getString("titulo");
-                String descripcion = rs.getString("descripcion");
-                boolean publicada = rs.getBoolean("esta_publicada");
-                String imagen = rs.getString("imagen");
-                int idEncuesta = rs.getInt("id"); 
-                
-                Encuesta e = new Encuesta(titulo, descripcion);
-                e.setEstaPublicada(publicada);
-                e.setImagen(imagen);
-
-                
-                ArrayList<Pregunta> preguntas = obtenerPreguntas(con, idEncuesta, null);
-                e.setPreguntas(preguntas);
-
-                lista.add(e);
-            }
-
-            rs.close();
-            ps.close();
-            con.close();
-
-        } catch (Exception e) {
-            System.out.println("Error en getEncuestas: " + e.getMessage());
-        }
-
-        return lista;
-    }
-
-   
-    public boolean crearEncuesta(Encuesta encuesta) {
-        String sqlEncuesta = "INSERT INTO encuestas (titulo, descripcion, esta_publicada, imagen) VALUES (?, ?, ?, ?)";
-        Connection con = null;
-        
-        try {
-            con = conexion.open();
+           
+            Gson gson = new Gson();
+            String preguntasJson = gson.toJson(encuesta.getPreguntas());
             
-            con.setAutoCommit(false); 
-
+           
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            
+            
+            builder.addPart("titulo", new StringBody(encuesta.getTitulo(), ContentType.TEXT_PLAIN));
+            builder.addPart("descripcion", new StringBody(encuesta.getDescripcion(), ContentType.TEXT_PLAIN));
           
-            PreparedStatement ps = con.prepareStatement(sqlEncuesta, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, encuesta.getTitulo());
-            ps.setString(2, encuesta.getDescripcion());
-            ps.setBoolean(3, encuesta.isEstaPublicada());
-            ps.setString(4, encuesta.getImagen());
+            builder.addPart("esta_publicada", new StringBody(String.valueOf(encuesta.isEstaPublicada()), ContentType.TEXT_PLAIN));
             
-            int rows = ps.executeUpdate();
+           
+            builder.addPart("preguntas_json", new StringBody(preguntasJson, ContentType.APPLICATION_JSON));
+
             
-            if (rows > 0) {
-                
-                ResultSet rsKeys = ps.getGeneratedKeys();
-                if (rsKeys.next()) {
-                    int idEncuesta = rsKeys.getInt(1);
-                    
-                   
-                    if (encuesta.getPreguntas() != null) {
-                        guardarPreguntas(con, encuesta.getPreguntas(), idEncuesta, null);
-                    }
-                }
-                rsKeys.close();
+            if (archivoImagen != null && archivoImagen.exists()) {
+                builder.addPart("imagen", new FileBody(archivoImagen));
             }
+
             
-            ps.close();
-            con.commit(); 
-            con.close();
-            return true;
+            HttpEntity entidad = builder.build();
+            String respuesta = Request.post(URL_BASE + "encuesta_insertar.php")
+                .body(entidad)
+                .execute().returnContent().asString();
+
+            System.out.println("Respuesta Crear Encuesta: " + respuesta);
+            
+            return respuesta.contains("success");
 
         } catch (Exception e) {
-            System.out.println("Error al crear encuesta: " + e.getMessage());
-            try {
-                if (con != null) con.rollback(); // Deshacer cambios si algo falló
-            } catch (Exception ex) { }
+            e.printStackTrace();
             return false;
         }
     }
 
-
-    private ArrayList<Pregunta> obtenerPreguntas(Connection con, int idEncuesta, Integer idPadre) throws Exception {
-        ArrayList<Pregunta> listaPreguntas = new ArrayList<>();
-        
-        String sql;
-        if (idPadre == null) {
-            sql = "SELECT * FROM preguntas WHERE id_encuesta = ? AND id_pregunta_padre IS NULL";
-        } else {
-            sql = "SELECT * FROM preguntas WHERE id_encuesta = ? AND id_pregunta_padre = ?";
-        }
-
-        PreparedStatement ps = con.prepareStatement(sql);
-        ps.setInt(1, idEncuesta);
-        if (idPadre != null) {
-            ps.setInt(2, idPadre);
-        }
-
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            String texto = rs.getString("texto_pregunta");
-            int idPregunta = rs.getInt("id");
-
-           
-            Pregunta p = new Pregunta(texto);
+    //  OBTENER ENCUESTAS (GET)
+    
+    public ArrayList<Encuesta> getEncuestas() {
+        ArrayList<Encuesta> lista = new ArrayList<>();
+        try {
+            String jsonRespuesta = Request.get(URL_BASE + "encuestas_get.php")
+                .execute().returnContent().asString();
             
-           
-            ArrayList<Pregunta> subPreguntas = obtenerPreguntas(con, idEncuesta, idPregunta);
-            p.setSubPreguntas(subPreguntas);
             
-            listaPreguntas.add(p);
-        }
-        
-        rs.close();
-        ps.close();
-        
-        return listaPreguntas;
-    }
-
-   
-    private void guardarPreguntas(Connection con, ArrayList<Pregunta> preguntas, int idEncuesta, Integer idPadre) throws Exception {
-        String sql = "INSERT INTO preguntas (id_encuesta, texto_pregunta, id_pregunta_padre) VALUES (?, ?, ?)";
-        
-        PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-        
-        for (Pregunta p : preguntas) {
-            ps.setInt(1, idEncuesta);
-            ps.setString(2, p.getTexto());
-            
-            if (idPadre == null) {
-                ps.setNull(3, java.sql.Types.INTEGER);
+            if (jsonRespuesta != null && jsonRespuesta.startsWith("[")) {
+                Gson gson = new Gson();
+                Type listaType = new TypeToken<ArrayList<Encuesta>>(){}.getType();
+                lista = gson.fromJson(jsonRespuesta, listaType);
             } else {
-                ps.setInt(3, idPadre);
+                System.out.println("Respuesta extraña al obtener encuestas: " + jsonRespuesta);
             }
             
-            ps.executeUpdate();
-            
-            // Obtener ID de la pregunta recién insertada
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                int idPreguntaGenerado = rs.getInt(1);
-                
-                
-                if (p.getSubPreguntas() != null && !p.getSubPreguntas().isEmpty()) {
-                    guardarPreguntas(con, p.getSubPreguntas(), idEncuesta, idPreguntaGenerado);
-                }
-            }
-            rs.close();
+        } catch (Exception e) {
+            System.out.println("Error al obtener encuestas: " + e.getMessage());
         }
-        ps.close();
+        return lista;
     }
     
-   
+    
     public boolean publicarEncuesta(String tituloEncuesta) {
-        String sql = "UPDATE encuestas SET esta_publicada = TRUE WHERE titulo = ?";
         try {
-            Connection con = conexion.open();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, tituloEncuesta);
             
-            int rows = ps.executeUpdate();
-            
-            ps.close();
-            con.close();
-            
-            return rows > 0;
+            String resp = Request.post(URL_BASE + "encuesta_publicar.php")
+                .bodyForm(Form.form().add("titulo", tituloEncuesta).build())
+                .execute().returnContent().asString();
+            return resp.contains("success");
         } catch (Exception e) {
-            System.out.println("Error al publicar encuesta: " + e.getMessage());
             return false;
         }
     }
 
     
     public boolean borrarEncuesta(String tituloEncuesta) {
-        String sql = "DELETE FROM encuestas WHERE titulo = ?";
         try {
-            Connection con = conexion.open();
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, tituloEncuesta);
-            
-            int rows = ps.executeUpdate();
-            
-            ps.close();
-            con.close();
-            
-            return rows > 0;
+           
+            String resp = Request.post(URL_BASE + "encuesta_borrar.php")
+                .bodyForm(Form.form().add("titulo", tituloEncuesta).build())
+                .execute().returnContent().asString();
+            return resp.contains("success");
         } catch (Exception e) {
-            System.out.println("Error al borrar encuesta: " + e.getMessage());
             return false;
         }
     }

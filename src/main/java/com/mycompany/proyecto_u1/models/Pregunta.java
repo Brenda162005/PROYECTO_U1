@@ -1,28 +1,64 @@
-
 package com.mycompany.proyecto_u1.models;
+
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Pregunta implements Serializable {
+    
    
+    
+    @SerializedName("id")
+    private int id;
+    
+    @SerializedName("id_encuesta")
+    private int idEncuesta;
+    
+    @SerializedName("texto_pregunta") 
     private String texto;
     
-    // Lista de sub-preguntas. Si está vacía, es una pregunta simple.
+    @SerializedName("id_pregunta_padre")
+    private Integer idPreguntaPadre; 
+    
+    
+    @SerializedName("sub_preguntas") 
     private ArrayList<Pregunta> subPreguntas;
 
-    // Constructor para una pregunta simple (sin sub-preguntas)
-    public Pregunta(String texto) {
-        this.texto = texto;
-        this.subPreguntas = new ArrayList<>(); // Se inicializa vacía
+    
+
+    public Pregunta() {
+        this.subPreguntas = new ArrayList<>();
     }
 
-    // Constructor completo (por si se necesita)
-    public Pregunta(String texto, ArrayList<Pregunta> subPreguntas) {
+    public Pregunta(String texto) {
+        this.texto = texto;
+        this.subPreguntas = new ArrayList<>();
+    }
+
+    // Constructor completo
+    public Pregunta(int id, String texto, ArrayList<Pregunta> subPreguntas) {
+        this.id = id;
         this.texto = texto;
         this.subPreguntas = subPreguntas;
     }
 
-    // --- Getters y Setters ---
+    // --- GETTERS Y SETTERS ---
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIdEncuesta() {
+        return idEncuesta;
+    }
+
+    public void setIdEncuesta(int idEncuesta) {
+        this.idEncuesta = idEncuesta;
+    }
 
     public String getTexto() {
         return texto;
@@ -30,6 +66,14 @@ public class Pregunta implements Serializable {
 
     public void setTexto(String texto) {
         this.texto = texto;
+    }
+
+    public Integer getIdPreguntaPadre() {
+        return idPreguntaPadre;
+    }
+
+    public void setIdPreguntaPadre(Integer idPreguntaPadre) {
+        this.idPreguntaPadre = idPreguntaPadre;
     }
 
     public ArrayList<Pregunta> getSubPreguntas() {
@@ -40,17 +84,12 @@ public class Pregunta implements Serializable {
         this.subPreguntas = subPreguntas;
     }
     
-    // --- Métodos útiles ---
     
-    /**
-     * Método rápido para saber si esta pregunta es compleja (tiene sub-preguntas).
-     * @return true si tiene sub-preguntas, false si no.
-     */
+    
     public boolean esCompleja() {
         return subPreguntas != null && !subPreguntas.isEmpty();
     }
     
-   
     public void agregarSubPregunta(Pregunta sub) {
         if (this.subPreguntas == null) {
             this.subPreguntas = new ArrayList<>();
@@ -62,5 +101,4 @@ public class Pregunta implements Serializable {
     public String toString() {
         return texto; 
     }
-  
 }

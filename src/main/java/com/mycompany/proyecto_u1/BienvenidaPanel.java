@@ -1,25 +1,57 @@
 package com.mycompany.proyecto_u1;
+
 import com.mycompany.proyecto_u1.models.Usuario;
-import com.mycompany.proyecto_u1.services.EncuestaService;
+import java.awt.Image;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 public class BienvenidaPanel extends javax.swing.JPanel {
+    private final String URL_BASE_FOTOS = "http://localhost/PROYECTO_U1/imagenes/";
 
 public BienvenidaPanel(Usuario usuario) {
-    initComponents();
+        initComponents();
 
-    
-    labelMensaje.setText("¡Bienvenido, " + usuario.getNombreUsuario() + "!"+ "  Selecciona 'Encuestas' para comenzar :)");
+        
+        labelMensaje.setText("¡Bienvenido, " + usuario.getNombreUsuario() + "!" + "  Selecciona 'Encuestas' para comenzar :)");
 
-   
-    String img = EncuestaService.IMG_PATH + "no_image_2.jpg";
-
-    if (usuario.getImagen() != null && !usuario.getImagen().isEmpty()) {
-        img = EncuestaService.IMG_PATH + usuario.getImagen();
+        
+        cargarFotoPerfil(usuario.getImagen());
     }
+    
+    private void cargarFotoPerfil(String nombreImagen) {
+        try {
+           
+            String imagenABuscar = "no_image_2.jpg"; // Por defecto
+            
+            
+            if (nombreImagen != null && !nombreImagen.isEmpty()) {
+                imagenABuscar = nombreImagen;
+            }
 
-    panelFotoPerfil.setIcon(new javax.swing.ImageIcon(img));
-    panelFotoPerfil.updateUI();
-}
+            // El puente hacia XAMPP
+            
+            URL url = new URL(URL_BASE_FOTOS + imagenABuscar);
+            
+            
+            Image imagenWeb = ImageIO.read(url);
+            
+            
+            if (imagenWeb != null) {
+                // (Opcional) Escalamos la imagen para que quepa bien
+                /* Image imagenEscalada = imagenWeb.getScaledInstance(150, 150, Image.SCALE_SMOOTH); 
+                   panelFotoPerfil.setIcon(new ImageIcon(imagenEscalada)); */
+                
+                // Sin escalar (como lo tenías):
+                panelFotoPerfil.setIcon(new ImageIcon(imagenWeb));
+                panelFotoPerfil.repaint();
+            }
+            
+        } catch (Exception e) {
+            System.out.println("No se pudo cargar la imagen desde XAMPP: " + e.getMessage());
+            
+        }
+    }
 
     
     @SuppressWarnings("unchecked")

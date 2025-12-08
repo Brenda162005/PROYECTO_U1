@@ -1,13 +1,9 @@
-
 package com.mycompany.proyecto_u1;
+
 import com.mycompany.proyecto_u1.models.Encuesta; 
 import javax.swing.JOptionPane; 
 import com.mycompany.proyecto_u1.services.EncuestaService; 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
@@ -15,20 +11,16 @@ public class CrearEncuestaFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CrearEncuestaFrame.class.getName());
     private AdminFrame parentFrame; 
-    private String imagenSeleccionada = "";
+    private File archivoImagenSeleccionado = null;
+    
    
     public CrearEncuestaFrame(){}
     
-    public CrearEncuestaFrame(AdminFrame parent) {
+    public CrearEncuestaFrame(AdminFrame parent) { 
         initComponents();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        this.parentFrame = parent;
-
         setTitle("Crear Nueva Encuesta");
-
-        
         setLocationRelativeTo(null); 
-
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
@@ -168,17 +160,17 @@ public class CrearEncuestaFrame extends javax.swing.JFrame {
         return; 
     }
     
-    //  Crear el objeto Encuesta en memoria
     Encuesta nuevaEncuesta = new Encuesta(titulo, descripcion);
-    nuevaEncuesta.setImagen(this.imagenSeleccionada);
+   
 
     
     
-    java.awt.EventQueue.invokeLater(new Runnable() {
-        public void run() {
-           new PreguntasFrame(CrearEncuestaFrame.this, nuevaEncuesta).setVisible(true);
-        }
-    });
+   java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                
+                new PreguntasFrame(nuevaEncuesta, archivoImagenSeleccionado).setVisible(true);
+            }
+        });
 
    
     this.dispose();
@@ -186,25 +178,24 @@ public class CrearEncuestaFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSiguienteActionPerformed
 
     private void btnSeleccionarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeleccionarImagenActionPerformed
-      if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-        File file = jFileChooser.getSelectedFile();
-        String fileName = file.getName();
+     if (jFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        
+        
+        this.archivoImagenSeleccionado = jFileChooser.getSelectedFile();
+        String fileName = archivoImagenSeleccionado.getName().toLowerCase();
 
-        // Validar que sea una imagen
         if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
-            // Copiar la imagen al proyecto
-            if (!copiarArchivo(file.toPath(), fileName)) return;
-
-            
-            panelImagenPreview.setIcon(
-                new javax.swing.ImageIcon(EncuestaService.IMG_PATH + fileName)
-            );
-            panelImagenPreview.updateUI();
-
-            // Guardar el nombre del archivo
-            this.imagenSeleccionada = fileName;
+            // Mostramos la vista previa directamente del archivo original
+            try {
+                javax.swing.ImageIcon icon = new javax.swing.ImageIcon(archivoImagenSeleccionado.getAbsolutePath());
+                panelImagenPreview.setIcon(icon);
+                panelImagenPreview.updateUI();
+            } catch (Exception e) {
+                System.out.println("Error al cargar previa: " + e.getMessage());
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Debe seleccionar una imagen (png, jpg, jpeg).");
+            this.archivoImagenSeleccionado = null;
         }
     }
     }//GEN-LAST:event_btnSeleccionarImagenActionPerformed
@@ -234,18 +225,6 @@ public class CrearEncuestaFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> new CrearEncuestaFrame().setVisible(true));
     }
     
-    private boolean copiarArchivo(Path original, String copiado) {
-    boolean result = false;
-    try {
-        Path path = Paths.get(EncuestaService.IMG_PATH + copiado);
-        Files.copy(original, path, StandardCopyOption.REPLACE_EXISTING);
-        result = true;
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Error al copiar la imagen: " + e.getMessage());
-    }
-    return result;
-}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaDescripcion;

@@ -1,36 +1,55 @@
-
 package com.mycompany.proyecto_u1.models;
+
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+public class Encuesta implements Serializable {
+    
+   
+    
+    @SerializedName("id")
+    private int id;
 
-public class Encuesta implements Serializable{
+    @SerializedName("titulo")
     private String titulo;
+
+    @SerializedName("descripcion")
     private String descripcion;
+    
+   
+    @SerializedName("preguntas")
     private ArrayList<Pregunta> preguntas;
+
+    @SerializedName("esta_publicada") 
     private boolean estaPublicada;
+
+    @SerializedName("imagen")
     private String imagen;
 
-    public String getImagen() {
-        return imagen;
+    
+
+    public Encuesta() {
+        this.preguntas = new ArrayList<>();
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
-    }
-    
-    
-    // Constructor
     public Encuesta(String titulo, String descripcion) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.preguntas = new ArrayList<>();
-        this.estaPublicada = false; // Nueva encuesta no está publicada por defecto
+        this.estaPublicada = false; 
     }
-    
-    
-    // --- Getters y Setters ---
-    
+
+   
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getTitulo() {
         return titulo;
     }
@@ -62,6 +81,14 @@ public class Encuesta implements Serializable{
     public void setEstaPublicada(boolean estaPublicada) {
         this.estaPublicada = estaPublicada;
     }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
     
    
     public void agregarPregunta(Pregunta p) {
@@ -73,6 +100,6 @@ public class Encuesta implements Serializable{
     
     @Override
     public String toString() {
-        return titulo; // Para mostrar en listas
+        return titulo; 
     }
 }

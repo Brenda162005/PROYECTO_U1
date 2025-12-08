@@ -15,7 +15,7 @@ import org.apache.hc.core5.http.HttpEntity;
 public class UsuarioService {
     
     
-    private final String URL_BASE = "http://localhost:3307/PROYECTO_U1/";
+    private final String URL_BASE = "http://localhost/PROYECTO_U1/";
 
     
     public Usuario validarUsuario(String nombreUsuario, String password) {
