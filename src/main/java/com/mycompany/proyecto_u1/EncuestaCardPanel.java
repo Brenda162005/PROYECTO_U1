@@ -3,33 +3,47 @@ package com.mycompany.proyecto_u1;
 import com.mycompany.proyecto_u1.models.Encuesta;
 import com.mycompany.proyecto_u1.models.Usuario;
 import com.mycompany.proyecto_u1.services.EncuestaService;
+ import java.net.URL;
+ import javax.imageio.ImageIO;
+ import java.awt.Image;
+
 public class EncuestaCardPanel extends javax.swing.JPanel {
     private Encuesta encuesta;
     private Usuario usuario;
     private UsuarioFrame parentFrame;
 
 
-    
-    public EncuestaCardPanel(UsuarioFrame parentFrame, Usuario usuario, Encuesta encuesta) {
+public EncuestaCardPanel(UsuarioFrame parentFrame, Usuario usuario, Encuesta encuesta) {
     initComponents();
     this.parentFrame = parentFrame;
     this.usuario = usuario;
     this.encuesta = encuesta;
 
-   
     labelTitulo.setText(encuesta.getTitulo());
-    
     areaDescripcionCard.setText(encuesta.getDescripcion());
 
     
-    String img = EncuestaService.IMG_PATH + "no_image_2.jpg"; 
-    if (encuesta.getImagen() != null && !encuesta.getImagen().isEmpty()) {
-        img = EncuestaService.IMG_PATH + encuesta.getImagen();
+    try {
+        String nombreImagen = encuesta.getImagen();
+        if (nombreImagen == null || nombreImagen.isEmpty()) {
+            nombreImagen = "no_image_2.jpg"; // Imagen por defecto en XAMPP
+        }
+        
+        
+        String urlFoto = "http://localhost/PROYECTO_U1/imagenes/" + nombreImagen;
+        URL url = new URL(urlFoto);
+        Image imagenWeb = ImageIO.read(url);
+        
+        if (imagenWeb != null) {
+             
+            Image imgEscalada = imagenWeb.getScaledInstance(190, 150, Image.SCALE_SMOOTH);
+            panelImagen.setIcon(new javax.swing.ImageIcon(imgEscalada));
+            panelImagen.repaint();
+        }
+    } catch (Exception e) {
+        System.out.println("No se pudo cargar imagen de encuesta: " + e.getMessage());
     }
-    panelImagen.setIcon(new javax.swing.ImageIcon(img));
-    panelImagen.updateUI();
 }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

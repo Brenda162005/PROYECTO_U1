@@ -25,26 +25,32 @@ public class EncuestaService {
     public static final String IMG_PATH = "src/main/java/com/mycompany/proyecto_u1/images/";
 
     
-    // -CREAR ENCUESTA (JSON de Preguntas + Archivo de Imagen) ---
+   
     public boolean crearEncuesta(Encuesta encuesta, File archivoImagen) {
         try {
-           
+            
             Gson gson = new Gson();
             String preguntasJson = gson.toJson(encuesta.getPreguntas());
             
-           
+            
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             
             
-            builder.addPart("titulo", new StringBody(encuesta.getTitulo(), ContentType.TEXT_PLAIN));
-            builder.addPart("descripcion", new StringBody(encuesta.getDescripcion(), ContentType.TEXT_PLAIN));
-          
-            builder.addPart("esta_publicada", new StringBody(String.valueOf(encuesta.isEstaPublicada()), ContentType.TEXT_PLAIN));
-            
-           
-            builder.addPart("preguntas_json", new StringBody(preguntasJson, ContentType.APPLICATION_JSON));
+            builder.setMode(org.apache.hc.client5.http.entity.mime.HttpMultipartMode.LEGACY);
+            builder.setCharset(StandardCharsets.UTF_8);
 
             
+            ContentType textoUTF8 = ContentType.create("text/plain", StandardCharsets.UTF_8);
+            
+            
+            builder.addPart("titulo", new StringBody(encuesta.getTitulo(), textoUTF8));
+            builder.addPart("descripcion", new StringBody(encuesta.getDescripcion(), textoUTF8));
+            builder.addPart("esta_publicada", new StringBody(String.valueOf(encuesta.isEstaPublicada()), textoUTF8));
+            
+            // El JSON de preguntas
+            builder.addPart("preguntas_json", new StringBody(preguntasJson, ContentType.APPLICATION_JSON));
+
+            //  Agregar la Imagen (si existe)
             if (archivoImagen != null && archivoImagen.exists()) {
                 builder.addPart("imagen", new FileBody(archivoImagen));
             }
@@ -89,14 +95,33 @@ public class EncuestaService {
     }
     
     
+ // PUBLICAR ENCUESTA (Versión UTF-8 Segura) ---
     public boolean publicarEncuesta(String tituloEncuesta) {
         try {
+            System.out.println("JAVA: Publicando -> " + tituloEncuesta);
+
+           
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            // MODO BROWSER_COMPATIBLE ayuda a evitar problemas raros
+            builder.setMode(org.apache.hc.client5.http.entity.mime.HttpMultipartMode.LEGACY);
+            builder.setCharset(StandardCharsets.UTF_8);
             
+            // Agregamos el título con codificación explícita
+            builder.addPart("titulo", new StringBody(tituloEncuesta, ContentType.create("text/plain", StandardCharsets.UTF_8)));
+
+            HttpEntity entidad = builder.build();
+
             String resp = Request.post(URL_BASE + "encuesta_publicar.php")
-                .bodyForm(Form.form().add("titulo", tituloEncuesta).build())
+                .body(entidad)
                 .execute().returnContent().asString();
+            
+            System.out.println("PHP RESPONDIÓ: " + resp); 
+
             return resp.contains("success");
+
         } catch (Exception e) {
+            System.out.println("ERROR JAVA: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
