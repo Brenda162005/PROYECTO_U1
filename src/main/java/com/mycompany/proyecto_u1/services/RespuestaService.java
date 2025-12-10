@@ -13,25 +13,31 @@ import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.core5.http.ContentType;
 
 public class RespuestaService {
-    
-    // URL Base (Ajusta el puerto si es necesario)
+
+    // Asegúrate de que esta IP/URL sea la correcta
     private final String URL_BASE = "http://localhost/PROYECTO_U1/";
 
-    // --- 1. GUARDAR RESPUESTA (Usa respuesta_insertar.php) ---
+    /**
+     * Envía una respuesta al servidor para ser guardada.
+     */
     public boolean guardarRespuesta(RespuestaEncuesta respuestaEncuesta) {
         try {
             Gson gson = new Gson();
             String jsonEnvio = gson.toJson(respuestaEncuesta);
-            
+
             System.out.println("JAVA: Enviando respuestas... " + jsonEnvio);
 
+            // Enviamos la petición POST con el JSON
             String resp = Request.post(URL_BASE + "respuesta_insertar.php")
-                .bodyString(jsonEnvio, ContentType.APPLICATION_JSON)
-                .execute().returnContent().asString(StandardCharsets.UTF_8);
-            
+                    .bodyString(jsonEnvio, ContentType.APPLICATION_JSON)
+                    .execute()
+                    .returnContent()
+                    .asString(StandardCharsets.UTF_8);
+
             System.out.println("PHP RESPONDIÓ (Guardar): " + resp);
 
-            return resp.contains("success");
+            // Verificamos si el PHP devolvió éxito
+            return resp != null && resp.contains("success");
 
         } catch (Exception e) {
             System.out.println("Error al guardar respuesta: " + e.getMessage());
@@ -40,40 +46,56 @@ public class RespuestaService {
         }
     }
 
-    // --- 2. OBTENER RESULTADOS PARA GRÁFICAS (Usa resultados_get.php) ---
-    public Map<String, int[]> getResultadosEncuesta(String tituloEncuesta) {
+    /**
+     * Descarga los resultados (conteos) para las gráficas.
+     * Retorna un Mapa: "Texto Pregunta" -> [arreglo de votos]
+     */
+    public Map<String, int[]> getResultadosEncuesta(int idEncuesta) {
         Map<String, int[]> resultados = new HashMap<>();
         try {
-            // Enviamos el título para saber de qué encuesta queremos la gráfica
+            // Solicitamos los resultados al PHP enviando el ID de la encuesta
             String jsonResp = Request.post(URL_BASE + "resultados_get.php")
-                .bodyForm(Form.form().add("titulo", tituloEncuesta).build())
-                .execute().returnContent().asString(StandardCharsets.UTF_8);
-
-            // Convertimos el JSON de PHP al Mapa de Java para la gráfica
-            Gson gson = new Gson();
-            Type tipoMapa = new TypeToken<Map<String, int[]>>(){}.getType();
-            resultados = gson.fromJson(jsonResp, tipoMapa);
+                    .bodyForm(Form.form().add("id_encuesta", String.valueOf(idEncuesta)).build())
+                    .execute()
+                    .returnContent()
+                    .asString(StandardCharsets.UTF_8);
             
+            // Si la respuesta está vacía o es nula, retornamos mapa vacío
+            if (jsonResp == null || jsonResp.trim().isEmpty()) {
+                return resultados;
+            }
+
+            Gson gson = new Gson();
+            // Definimos que el JSON viene como un Mapa de String a Array de int
+            Type tipoMapa = new TypeToken<Map<String, int[]>>() {}.getType();
+            resultados = gson.fromJson(jsonResp, tipoMapa);
+
         } catch (Exception e) {
             System.out.println("Error al obtener gráficas: " + e.getMessage());
+            e.printStackTrace();
         }
         return resultados;
     }
-    
-    // --- 3. OBTENER LISTA DE RESPUESTAS (Usa respuestas_get.php) ---
+
+    /**
+     * Descarga la lista de todas las respuestas individuales (si se necesita para tablas).
+     */
     public ArrayList<RespuestaEncuesta> getRespuestas() {
         ArrayList<RespuestaEncuesta> lista = new ArrayList<>();
         try {
             String jsonResp = Request.get(URL_BASE + "respuestas_get.php")
-                .execute().returnContent().asString(StandardCharsets.UTF_8);
-            
+                    .execute()
+                    .returnContent()
+                    .asString(StandardCharsets.UTF_8);
+
             if (jsonResp != null && jsonResp.startsWith("[")) {
                 Gson gson = new Gson();
-                Type tipoLista = new TypeToken<ArrayList<RespuestaEncuesta>>(){}.getType();
+                Type tipoLista = new TypeToken<ArrayList<RespuestaEncuesta>>() {}.getType();
                 lista = gson.fromJson(jsonResp, tipoLista);
             }
         } catch (Exception e) {
             System.out.println("Error al obtener lista de respuestas: " + e.getMessage());
+            e.printStackTrace();
         }
         return lista;
     }

@@ -22,7 +22,7 @@ public class GraficasPanel extends javax.swing.JPanel {
         RespuestaService service = new RespuestaService();
         
         
-        Map<String, int[]> resultados = service.getResultadosEncuesta(encuesta.getTitulo());
+       Map<String, int[]> resultados = service.getResultadosEncuesta(encuesta.getId());
 
      
         panelContenidoGraficas.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -32,11 +32,14 @@ public class GraficasPanel extends javax.swing.JPanel {
             panelContenidoGraficas.add(new javax.swing.JLabel("Esta encuesta aún no tiene respuestas o preguntas."));
         } else {
             for (Map.Entry<String, int[]> entry : resultados.entrySet()) {
-                // Reutilizamos el panel que dibuja las barras
-                GraficaBarraPanel panelGrafica = new GraficaBarraPanel(entry.getKey(), entry.getValue());
-                panelContenidoGraficas.add(panelGrafica);
                 
-                // Añade una separación vertical de 25 píxeles
+              
+                String tituloOriginal = entry.getKey();
+                
+                String tituloLimpio = tituloOriginal.replaceAll("^\\d+\\.\\s*", ""); 
+                GraficaBarraPanel panelGrafica = new GraficaBarraPanel(tituloLimpio, entry.getValue());
+                panelContenidoGraficas.add(panelGrafica);
+
                 panelContenidoGraficas.add(Box.createVerticalStrut(25));
             }
         }

@@ -103,7 +103,7 @@ public Respuesta getRespuesta() {
             // Si encontramos uno seleccionado, obtenemos la puntuación
             int puntuacion = (int) button.getClientProperty("puntuacion");
             // Creamos un objeto Respuesta con el texto de la pregunta y la puntuación
-            return new Respuesta(this.pregunta.getTexto(), puntuacion);
+           return new Respuesta(this.pregunta.getId(), this.pregunta.getTexto(), puntuacion);
         }
     }
     return null; 
