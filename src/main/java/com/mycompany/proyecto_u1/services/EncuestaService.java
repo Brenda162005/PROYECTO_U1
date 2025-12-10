@@ -3,6 +3,7 @@ package com.mycompany.proyecto_u1.services;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mycompany.proyecto_u1.models.Encuesta;
+import com.mycompany.proyecto_u1.models.Pregunta;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -127,15 +128,59 @@ public class EncuestaService {
     }
 
     
+    
+    
+   
     public boolean borrarEncuesta(String tituloEncuesta) {
         try {
-           
+            
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(org.apache.hc.client5.http.entity.mime.HttpMultipartMode.LEGACY);
+            builder.setCharset(StandardCharsets.UTF_8);
+            
+            
+            ContentType textoUTF8 = ContentType.create("text/plain", StandardCharsets.UTF_8);
+            builder.addPart("titulo", new StringBody(tituloEncuesta, textoUTF8));
+
+            HttpEntity entidad = builder.build();
+
             String resp = Request.post(URL_BASE + "encuesta_borrar.php")
-                .bodyForm(Form.form().add("titulo", tituloEncuesta).build())
+                .body(entidad)
                 .execute().returnContent().asString();
+            
+             
+
             return resp.contains("success");
+
         } catch (Exception e) {
+            System.out.println("ERROR JAVA AL BORRAR: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
+    }
+    
+   
+    public ArrayList<Pregunta> getPreguntasDeEncuesta(int idEncuesta) {
+        ArrayList<Pregunta> lista = new ArrayList<>();
+        try {
+            
+            String url = URL_BASE + "preguntas_get.php?id_encuesta=" + idEncuesta;
+            System.out.println("JAVA: Descargando preguntas de -> " + url);
+            
+            String jsonResp = Request.get(url)
+                .execute().returnContent().asString(StandardCharsets.UTF_8);
+            
+            System.out.println("PHP RESPONDIÓ (Preguntas): " + jsonResp);
+
+            if (jsonResp != null && jsonResp.startsWith("[")) {
+                Gson gson = new Gson();
+                Type listaType = new TypeToken<ArrayList<Pregunta>>(){}.getType();
+                lista = gson.fromJson(jsonResp, listaType);
+            }
+        } catch (Exception e) {
+            System.out.println("Error al descargar preguntas: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return lista;
     }
 }

@@ -9,50 +9,50 @@ import com.mycompany.proyecto_u1.services.RespuestaService;
 // import com.mycompany.proyecto_u1.GraficasPanel; // Si no lo usas aquí, se puede quitar
 
 
-public class VerEncuestasPanel extends javax.swing.JPanel {
-    private Usuario usuario;
-    private UsuarioFrame parentFrame;
+    public class VerEncuestasPanel extends javax.swing.JPanel {
+        private Usuario usuario;
+        private UsuarioFrame parentFrame;
 
-    
-public VerEncuestasPanel(UsuarioFrame parentFrame, Usuario usuario) {
-        initComponents();
-        this.parentFrame = parentFrame;
-        this.usuario = usuario;
-        cargarEncuestas(); 
-    }   
- 
-private void cargarEncuestas() {
-       
-        RespuestaService respuestaService = new RespuestaService();
-        EncuestaService encuestaService = new EncuestaService();
 
-        
-        ArrayList<RespuestaEncuesta> todasLasRespuestas = respuestaService.getRespuestas();
+    public VerEncuestasPanel(UsuarioFrame parentFrame, Usuario usuario) {
+            initComponents();
+            this.parentFrame = parentFrame;
+            this.usuario = usuario;
+            cargarEncuestas(); 
+        }   
 
-        
-        ArrayList<String> titulosContestados = new ArrayList<>();
-        for (RespuestaEncuesta r : todasLasRespuestas) {
-            if (r.getNombreUsuario().equals(this.usuario.getNombreUsuario())) {
-                titulosContestados.add(r.getTituloEncuesta());
+    public void cargarEncuestas() {
+
+            RespuestaService respuestaService = new RespuestaService();
+            EncuestaService encuestaService = new EncuestaService();
+
+
+            ArrayList<RespuestaEncuesta> todasLasRespuestas = respuestaService.getRespuestas();
+
+
+            ArrayList<String> titulosContestados = new ArrayList<>();
+            for (RespuestaEncuesta r : todasLasRespuestas) {
+                if (r.getNombreUsuario().equals(this.usuario.getNombreUsuario())) {
+                    titulosContestados.add(r.getTituloEncuesta());
+                }
             }
-        }
-        
-        panelGrid.removeAll();
 
-        
-        ArrayList<Encuesta> todasLasEncuestas = encuestaService.getEncuestas();
-        
-        for (Encuesta e : todasLasEncuestas) {
-            // Solo mostrar si está publicada Y el usuario NO la ha contestado
-            if (e.isEstaPublicada() && !titulosContestados.contains(e.getTitulo())) {
-                EncuestaCardPanel card = new EncuestaCardPanel(this.parentFrame, this.usuario, e);
-                panelGrid.add(card);
+            panelGrid.removeAll();
+
+
+            ArrayList<Encuesta> todasLasEncuestas = encuestaService.getEncuestas();
+
+            for (Encuesta e : todasLasEncuestas) {
+                // Solo mostrar si está publicada Y el usuario NO la ha contestado
+                if (e.isEstaPublicada() && !titulosContestados.contains(e.getTitulo())) {
+                   EncuestaCardPanel card = new EncuestaCardPanel(this.parentFrame, this.usuario, e, this);
+                    panelGrid.add(card);
+                }
             }
-        }
 
-        panelGrid.revalidate();
-        panelGrid.repaint();
-    }
+            panelGrid.revalidate();
+            panelGrid.repaint();
+        }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

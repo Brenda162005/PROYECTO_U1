@@ -11,13 +11,14 @@ public class EncuestaCardPanel extends javax.swing.JPanel {
     private Encuesta encuesta;
     private Usuario usuario;
     private UsuarioFrame parentFrame;
+    private VerEncuestasPanel panelPadre;
 
 
-public EncuestaCardPanel(UsuarioFrame parentFrame, Usuario usuario, Encuesta encuesta) {
+public EncuestaCardPanel(UsuarioFrame parentFrame, Usuario usuario, Encuesta encuesta, VerEncuestasPanel panelPadre) {
     initComponents();
     this.parentFrame = parentFrame;
     this.usuario = usuario;
-    this.encuesta = encuesta;
+    this.encuesta = encuesta;this.panelPadre = panelPadre;
 
     labelTitulo.setText(encuesta.getTitulo());
     areaDescripcionCard.setText(encuesta.getDescripcion());
@@ -103,15 +104,8 @@ public EncuestaCardPanel(UsuarioFrame parentFrame, Usuario usuario, Encuesta enc
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnContestarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContestarActionPerformed
-        // Abrir la nueva ventana para contestar
-    java.awt.EventQueue.invokeLater(new Runnable() {
-        public void run() {
-            new ContestarEncuestaFrame(usuario, encuesta).setVisible(true);
-        }
-    });
-
-    // Cerrar la ventana principal de Usuario
-    this.parentFrame.dispose();
+    ContestarEncuestaFrame frame = new ContestarEncuestaFrame(usuario, encuesta, this.panelPadre);
+    frame.setVisible(true);
     }//GEN-LAST:event_btnContestarActionPerformed
 
 

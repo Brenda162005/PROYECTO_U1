@@ -1,60 +1,57 @@
 package com.mycompany.proyecto_u1.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Representa una encuesta completada por un usuario.
- */
 public class RespuestaEncuesta implements Serializable {
     
-    // Para saber qué encuesta se contestó (ej. "Encuesta de Prueba 1")
+    // --- CORRECCIÓN 1: Coincide con la columna 'id_encuesta' de tu tabla ---
+    @SerializedName("id_encuesta")
+    private int idEncuesta; 
+    
+    // --- CORRECCIÓN 2: Coincide con la columna 'titulo' de la tabla 'encuestas' ---
+    // Usamos 'alternate' por si en algún lado lo llamas diferente, Gson buscará ambos.
+    @SerializedName(value = "titulo", alternate = {"tituloEncuesta", "titulo_encuesta"})
     private String tituloEncuesta;
     
-    // Para saber qué usuario la contestó (ej. "usuario")
+    // --- CORRECCIÓN 3: Coincide con la columna 'nombre_usuario' de tu tabla ---
+    @SerializedName("nombre_usuario")
     private String nombreUsuario;
     
-    // La lista de todas sus respuestas
+    @SerializedName("respuestas")
     private ArrayList<Respuesta> respuestas;
 
-    // Constructor
+    // Constructor vacío
+    public RespuestaEncuesta() {
+        this.respuestas = new ArrayList<>();
+    }
+
     public RespuestaEncuesta(String tituloEncuesta, String nombreUsuario) {
         this.tituloEncuesta = tituloEncuesta;
         this.nombreUsuario = nombreUsuario;
         this.respuestas = new ArrayList<>();
     }
     
-    // Método útil para añadir respuestas
     public void agregarRespuesta(Respuesta r) {
         this.respuestas.add(r);
     }
     
-    // Getters y Setters (necesarios para Gson)
-    public String getTituloEncuesta() {
-        return tituloEncuesta;
-    }
+    // Getters y Setters
+    public int getIdEncuesta() { return idEncuesta; }
+    public void setIdEncuesta(int idEncuesta) { this.idEncuesta = idEncuesta; }
 
-    public void setTituloEncuesta(String tituloEncuesta) {
-        this.tituloEncuesta = tituloEncuesta;
-    }
+    public String getTituloEncuesta() { return tituloEncuesta; }
+    public void setTituloEncuesta(String tituloEncuesta) { this.tituloEncuesta = tituloEncuesta; }
 
-    public String getNombreUsuario() {
-        return nombreUsuario;
-    }
+    public String getNombreUsuario() { return nombreUsuario; }
+    public void setNombreUsuario(String nombreUsuario) { this.nombreUsuario = nombreUsuario; }
 
-    public void setNombreUsuario(String nombreUsuario) {
-        this.nombreUsuario = nombreUsuario;
+    public ArrayList<Respuesta> getRespuestas() { return respuestas; }
+    public void setRespuestas(ArrayList<Respuesta> respuestas) { this.respuestas = respuestas; }
+    
+    @Override
+    public String toString() {
+        return this.tituloEncuesta;
     }
-
-    public ArrayList<Respuesta> getRespuestas() {
-        return respuestas;
-    }
-
-    public void setRespuestas(ArrayList<Respuesta> respuestas) {
-        this.respuestas = respuestas;
-    }
-        @Override
-public String toString() {
-    return this.tituloEncuesta; // La JList usará esto para mostrar el texto
-}
 }

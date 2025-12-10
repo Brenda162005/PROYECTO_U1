@@ -1,6 +1,7 @@
 package com.mycompany.proyecto_u1;
 
 import com.mycompany.proyecto_u1.models.Usuario;
+import com.mycompany.proyecto_u1.services.EncuestaService;
 import com.mycompany.proyecto_u1.models.Encuesta;
 import javax.swing.JFrame;
 import com.mycompany.proyecto_u1.models.Pregunta;
@@ -19,6 +20,7 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ContestarEncuestaFrame.class.getName());
     private Usuario usuario;
     private Encuesta encuesta;
+    private VerEncuestasPanel panelPadre;
    
     public ContestarEncuestaFrame() {
     initComponents();
@@ -27,14 +29,25 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
     setLocationRelativeTo(null);
     }
     
-    public ContestarEncuestaFrame(Usuario usuario, Encuesta encuesta) {
-    this(); 
+// AGREGAMOS EL TERCER PARÁMETRO AQUÍ: VerEncuestasPanel panelPadre
+public ContestarEncuestaFrame(Usuario usuario, Encuesta encuesta, VerEncuestasPanel panelPadre) {
+    // Esto evita que se cierre toda la app, solo cierra esta ventana
+    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    
+    initComponents(); // Primero iniciamos componentes visuales
+    
     this.usuario = usuario;
     this.encuesta = encuesta;
+    this.panelPadre = panelPadre;
 
     setTitle("Contestando: " + this.encuesta.getTitulo());
 
-    generarPreguntasGUI();
+    // Carga de preguntas (Código corregido anteriormente)
+    com.mycompany.proyecto_u1.services.EncuestaService service = new com.mycompany.proyecto_u1.services.EncuestaService();
+    java.util.ArrayList<Pregunta> preguntasDescargadas = service.getPreguntasDeEncuesta(this.encuesta.getId());
+    this.encuesta.setPreguntas(preguntasDescargadas);
+    
+    generarPreguntasGUI(); 
 }
 
 
@@ -80,7 +93,7 @@ private void generarPreguntasGUI() {
         panelContenido = new javax.swing.JPanel();
         btnGuardarRespuestas = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         panelPreguntas.setBackground(new java.awt.Color(239, 242, 242));
         panelPreguntas.setLayout(new java.awt.BorderLayout());
@@ -123,35 +136,38 @@ private void generarPreguntasGUI() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnGuardarRespuestasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarRespuestasActionPerformed
-                                               
   
+    if (this.encuesta.getPreguntas() == null || this.encuesta.getPreguntas().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Error: No se cargaron las preguntas...", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // 2. Preparar el objeto Respuesta
     RespuestaEncuesta nuevaRespuesta = new RespuestaEncuesta(
         this.encuesta.getTitulo(),
         this.usuario.getNombreUsuario()
     );
+    // IMPORTANTE: Ponemos el ID para que PHP no se pierda
+    nuevaRespuesta.setIdEncuesta(this.encuesta.getId());
 
     boolean todoContestado = true;
 
-
+    // 3. Recolectar respuestas de los paneles
     for (Component comp : panelContenido.getComponents()) {
         
-       
         if (comp instanceof PreguntaPanel) {
             Respuesta r = ((PreguntaPanel) comp).getRespuesta();
             if (r != null) {
                 nuevaRespuesta.agregarRespuesta(r);
             } else {
-                todoContestado = false; // ¡Falta una respuesta!
+                todoContestado = false;
                 break; 
             }
         }
         
-        
         if (comp instanceof ComplejaPreguntaPanel) {
-            
             ArrayList<Respuesta> respuestasComplejas = ((ComplejaPreguntaPanel) comp).getRespuestas();
             if (respuestasComplejas != null) {
-                // Añadimos todas las sub-respuestas a nuestra respuesta principal
                 for (Respuesta r : respuestasComplejas) {
                     nuevaRespuesta.agregarRespuesta(r);
                 }
@@ -162,30 +178,34 @@ private void generarPreguntasGUI() {
         }
     }
 
-   
+    // 4. Validar que todo esté contestado
     if (!todoContestado) {
-        JOptionPane.showMessageDialog(this, "Por favor, contesta todas las preguntas de la encuesta.", "Error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Por favor, contesta todas las preguntas.", "Faltan respuestas", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
+    // 5. ENVIAR A LA BASE DE DATOS
+    RespuestaService service = new RespuestaService();
     
-   
-        RespuestaService service = new RespuestaService();
+    if (service.guardarRespuesta(nuevaRespuesta)) {
+        // --- ÉXITO ---
+        JOptionPane.showMessageDialog(this, "¡Gracias! Tus respuestas han sido guardadas.");
+
+        // --- AQUÍ REFRESCAMOS AL PADRE (SOLO SI SE GUARDÓ BIEN) ---
+        if (this.panelPadre != null) {
+            System.out.println("Refrescando panel padre...");
+            this.panelPadre.cargarEncuestas(); // <--- AQUÍ ESTABA EL ERROR (FALTABA EL PUNTO)
+        }
+        // ----------------------------------------------------------
+
+        this.dispose(); // Cerramos la ventana SOLO si salió bien
         
-        //  Guardar en la Base de Datos
-        if (service.guardarRespuesta(nuevaRespuesta)) {
-            JOptionPane.showMessageDialog(this, "¡Gracias por contestar la encuesta! Tus respuestas han sido guardadas.", "Encuesta Finalizada", JOptionPane.INFORMATION_MESSAGE);
-            
-            
-            this.dispose();
-         
-            if (usuario != null) {
-                 
-            }
-            
-        } else {
-            JOptionPane.showMessageDialog(this, "Error: No se pudieron guardar tus respuestas en la base de datos.", "Error de Guardado", JOptionPane.ERROR_MESSAGE);
-        }    
+    } else {
+        // --- ERROR ---
+        JOptionPane.showMessageDialog(this, "Error al guardar en la BD.", "Error", JOptionPane.ERROR_MESSAGE);
+        // No cerramos la ventana (no ponemos dispose) para que el usuario intente de nuevo
+    }    
+
 
     }//GEN-LAST:event_btnGuardarRespuestasActionPerformed
 
