@@ -25,7 +25,11 @@ public GraficaBarraPanel(String textoPregunta, int[] conteos) {
     // Poner un margen
     setBorder(new EmptyBorder(10, 10, 10, 10));
 
+<<<<<<< HEAD
      
+=======
+    // Calcular el voto más alto 
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     for (int conteo : conteos) {
         if (conteo > maxConteo) {
             maxConteo = conteo;

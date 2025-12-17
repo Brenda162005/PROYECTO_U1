@@ -6,7 +6,11 @@ import java.util.ArrayList;
 import com.mycompany.proyecto_u1.models.Usuario;
 import com.mycompany.proyecto_u1.models.RespuestaEncuesta; 
 import com.mycompany.proyecto_u1.services.RespuestaService;
+<<<<<<< HEAD
 
+=======
+// import com.mycompany.proyecto_u1.GraficasPanel; // Si no lo usas aquí, se puede quitar
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
 
 
     public class VerEncuestasPanel extends javax.swing.JPanel {

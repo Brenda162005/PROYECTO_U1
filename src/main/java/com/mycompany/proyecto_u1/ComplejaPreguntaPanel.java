@@ -8,7 +8,13 @@ import java.awt.GridLayout; // Para el panel de sub-preguntas
 import javax.swing.border.EmptyBorder; // Para el margen
 public class ComplejaPreguntaPanel extends javax.swing.JPanel {
 
+<<<<<<< HEAD
    
+=======
+    /**
+     * Creates new form ComplejaPreguntaPanel
+     */
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public ComplejaPreguntaPanel() {
         initComponents();
     }
@@ -72,11 +78,19 @@ public class ComplejaPreguntaPanel extends javax.swing.JPanel {
 public ArrayList<Respuesta> getRespuestas() {
     ArrayList<Respuesta> respuestas = new ArrayList<>();
 
+<<<<<<< HEAD
    
     for (Component comp : panelSubPreguntas.getComponents()) {
         
         if (comp instanceof PreguntaPanel) {
            
+=======
+    // Iteramos sobre todos los componentes DENTRO de 'panelSubPreguntas'
+    for (Component comp : panelSubPreguntas.getComponents()) {
+        // Verificamos si el componente es un PreguntaPanel
+        if (comp instanceof PreguntaPanel) {
+            // Le pedimos su respuesta
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             Respuesta r = ((PreguntaPanel) comp).getRespuesta();
             if (r != null) {
                 respuestas.add(r);

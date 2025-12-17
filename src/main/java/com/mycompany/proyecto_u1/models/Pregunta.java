@@ -42,7 +42,11 @@ public class Pregunta implements Serializable {
         this.subPreguntas = subPreguntas;
     }
 
+<<<<<<< HEAD
   
+=======
+    // --- GETTERS Y SETTERS ---
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
 
     public int getId() {
         return id;

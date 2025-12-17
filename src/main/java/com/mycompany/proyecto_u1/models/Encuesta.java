@@ -25,12 +25,20 @@ public class Encuesta implements Serializable {
     @SerializedName("preguntas") 
     private ArrayList<Pregunta> preguntas;
 
+<<<<<<< HEAD
 
+=======
+    // --- CONSTRUCTOR 1: Vacío (Necesario) ---
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public Encuesta() {
         this.preguntas = new ArrayList<>();
     }
 
+<<<<<<< HEAD
     
+=======
+    // --- CONSTRUCTOR 2: Completo (Usado al cargar desde BD) ---
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public Encuesta(int id, String titulo, String descripcion, boolean estaPublicada, String imagen) {
         this.id = id;
         this.titulo = titulo;
@@ -40,7 +48,12 @@ public class Encuesta implements Serializable {
         this.preguntas = new ArrayList<>();
     }
 
+<<<<<<< HEAD
     
+=======
+    // --- CONSTRUCTOR 3: RECUPERADO (Usado en CrearEncuestaFrame) ---
+    // Este era el que faltaba y causaba el primer error
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public Encuesta(String titulo, String descripcion) {
         this.titulo = titulo;
         this.descripcion = descripcion;
@@ -48,7 +61,12 @@ public class Encuesta implements Serializable {
         this.preguntas = new ArrayList<>();
     }
 
+<<<<<<< HEAD
     
+=======
+    // --- MÉTODO RECUPERADO (Usado en PreguntasFrame) ---
+    // Este arregla los errores de "cannot find symbol method agregarPregunta"
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public void agregarPregunta(Pregunta p) {
         if (this.preguntas == null) {
             this.preguntas = new ArrayList<>();
@@ -56,7 +74,11 @@ public class Encuesta implements Serializable {
         this.preguntas.add(p);
     }
 
+<<<<<<< HEAD
     
+=======
+    // --- Getters y Setters ---
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

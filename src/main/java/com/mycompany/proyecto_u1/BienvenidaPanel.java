@@ -13,8 +13,13 @@ public BienvenidaPanel(Usuario usuario) {
         initComponents();
 
         
+<<<<<<< HEAD
         labelMensaje.setText("¡Bienvenido, " + usuario.getNombreUsuario() + "!" +
                 "  Selecciona 'Encuestas' para comenzar :)");
+=======
+        labelMensaje.setText("¡Bienvenido, " + usuario.getNombreUsuario() + "!" + "  Selecciona 'Encuestas' para comenzar :)");
+
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
         
         cargarFotoPerfil(usuario.getImagen());
     }
@@ -22,16 +27,39 @@ public BienvenidaPanel(Usuario usuario) {
     private void cargarFotoPerfil(String nombreImagen) {
         try {
            
+<<<<<<< HEAD
             String imagenABuscar = "no_image_2.jpg"; 
            if (nombreImagen != null && !nombreImagen.isEmpty()) {
                 imagenABuscar = nombreImagen;
             }
             URL url = new URL(URL_BASE_FOTOS + imagenABuscar);
+=======
+            String imagenABuscar = "no_image_2.jpg"; // Por defecto
+            
+            
+            if (nombreImagen != null && !nombreImagen.isEmpty()) {
+                imagenABuscar = nombreImagen;
+            }
+
+            // El puente hacia XAMPP
+            
+            URL url = new URL(URL_BASE_FOTOS + imagenABuscar);
+            
+            
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             Image imagenWeb = ImageIO.read(url);
             
             
             if (imagenWeb != null) {
+<<<<<<< HEAD
             
+=======
+                // (Opcional) Escalamos la imagen para que quepa bien
+                /* Image imagenEscalada = imagenWeb.getScaledInstance(150, 150, Image.SCALE_SMOOTH); 
+                   panelFotoPerfil.setIcon(new ImageIcon(imagenEscalada)); */
+                
+                // Sin escalar (como lo tenías):
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
                 panelFotoPerfil.setIcon(new ImageIcon(imagenWeb));
                 panelFotoPerfil.repaint();
             }

@@ -36,7 +36,11 @@ public class ReporteService {
             case 3: return "3 - Neutral";
             case 4: return "4 - De Acuerdo";
             case 5: return "5 - Totalmente de Acuerdo";
+<<<<<<< HEAD
             default: return String.valueOf(puntuacion); 
+=======
+            default: return String.valueOf(puntuacion); // Si es 0 o algo raro
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
         }
     }
 
@@ -44,6 +48,7 @@ public class ReporteService {
 
 
    public static boolean generarExcelReporteGeneral(File file) {
+<<<<<<< HEAD
         
         EncuestaService encuestaService = new EncuestaService();
         RespuestaService respuestaService = new RespuestaService();
@@ -53,10 +58,22 @@ public class ReporteService {
         ArrayList<RespuestaEncuesta> todasLasRespuestas = respuestaService.getRespuestas(); 
         
         
+=======
+        // --- CORRECCIÓN: Instanciar los servicios primero ---
+        EncuestaService encuestaService = new EncuestaService();
+        RespuestaService respuestaService = new RespuestaService();
+
+        // 1. Obtener todos los datos necesarios usando las instancias
+        ArrayList<Encuesta> todasLasEncuestas = encuestaService.getEncuestas();
+        ArrayList<RespuestaEncuesta> todasLasRespuestas = respuestaService.getRespuestas(); 
+        
+        // 2. Filtrar solo las encuestas publicadas
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
         List<Encuesta> encuestasPublicadas = todasLasEncuestas.stream()
                 .filter(Encuesta::isEstaPublicada)
                 .collect(Collectors.toList());
 
+<<<<<<< HEAD
         
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             
@@ -65,13 +82,27 @@ public class ReporteService {
             int rowNumPromedios = 0;
             
            
+=======
+        // 3. Crear el libro de Excel
+        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+            
+            // --- PESTAÑA 1: RESUMEN DE PROMEDIOS ---
+            XSSFSheet sheetPromedios = workbook.createSheet("Resumen de Promedios");
+            int rowNumPromedios = 0;
+            
+            // Encabezados
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             Row headerPromedios = sheetPromedios.createRow(rowNumPromedios++);
             headerPromedios.createCell(0).setCellValue("Encuesta");
             headerPromedios.createCell(1).setCellValue("Pregunta");
             headerPromedios.createCell(2).setCellValue("Promedio (1-5)");
             headerPromedios.createCell(3).setCellValue("Total de Respuestas");
 
+<<<<<<< HEAD
             
+=======
+            // Calcular y llenar los promedios
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             for (Encuesta encuesta : encuestasPublicadas) {
                 
                 Map<String, int[]> resultados = new java.util.HashMap<>();
@@ -83,7 +114,11 @@ public class ReporteService {
                             resultados.put(subP.getTexto(), new int[5]); 
                         }
                     } else {
+<<<<<<< HEAD
                         resultados.put(p.getTexto(), new int[5]); 
+=======
+                        resultados.put(p.getTexto(), new int[5]); // Agregar pregunta simple
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
                     }
                 }
                 
@@ -124,7 +159,11 @@ public class ReporteService {
                 }
             }
 
+<<<<<<< HEAD
             
+=======
+            // --- PESTAÑA 2: RESPUESTAS DETALLADAS ---
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             XSSFSheet sheetDetallado = workbook.createSheet("Respuestas Detalladas");
             int rowNumDetallado = 0;
             
@@ -184,7 +223,11 @@ public class ReporteService {
                 contentStream.showText(encuesta.getTitulo());
                 contentStream.endText();
 
+<<<<<<< HEAD
                
+=======
+                // --- CORRECCIÓN: Instanciar servicio ---
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
                 RespuestaService respuestaService = new RespuestaService();
                 
                 ArrayList<RespuestaEncuesta> respuestas = respuestaService.getRespuestas().stream()
@@ -202,6 +245,7 @@ public class ReporteService {
                 float yPosition = 700;
 
                 for (RespuestaEncuesta respuestaUsuario : respuestas) {
+<<<<<<< HEAD
                    
                     if (yPosition < 50) { 
                         contentStream.close(); 
@@ -209,6 +253,16 @@ public class ReporteService {
                         PDPage newPage = new PDPage();
                         document.addPage(newPage);
                       
+=======
+                    // Salto de página simple si se acaba el espacio
+                    if (yPosition < 50) { 
+                        contentStream.close(); // Cerrar stream actual
+                        // Crear nueva página
+                        PDPage newPage = new PDPage();
+                        document.addPage(newPage);
+                        // Iniciar nuevo stream (NO se puede hacer recursivo fácil aquí, pero esto evita el error)
+                        // Para simplificar en este punto, solo cortamos la impresión o la reiniciamos en una versión más avanzada
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
                         break; 
                     }
 

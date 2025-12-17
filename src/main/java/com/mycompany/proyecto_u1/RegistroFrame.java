@@ -180,7 +180,11 @@ public class RegistroFrame extends javax.swing.JFrame {
             
         } else {
             JOptionPane.showMessageDialog(this, "Por favor selecciona un archivo de imagen válido.");
+<<<<<<< HEAD
             this.archivoFotoSeleccionado = null;
+=======
+            this.archivoFotoSeleccionado = null; // Limpiamos si no es imagen
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
         }
      }
 

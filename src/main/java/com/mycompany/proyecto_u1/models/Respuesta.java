@@ -24,7 +24,11 @@ public class Respuesta implements Serializable {
         this.puntuacion = puntuacion;
     }
 
+<<<<<<< HEAD
     
+=======
+    // Getters y Setters
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public int getIdPregunta() { return idPregunta; }
     public void setIdPregunta(int idPregunta) { this.idPregunta = idPregunta; }
 

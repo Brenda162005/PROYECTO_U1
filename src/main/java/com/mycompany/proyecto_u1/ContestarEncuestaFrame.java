@@ -13,6 +13,11 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import java.awt.Component;
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
 public class ContestarEncuestaFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ContestarEncuestaFrame.class.getName());
@@ -27,6 +32,7 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
     setLocationRelativeTo(null);
     }
     
+<<<<<<< HEAD
 
     public ContestarEncuestaFrame(Usuario usuario, Encuesta encuesta, VerEncuestasPanel panelPadre) {
         
@@ -70,6 +76,53 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
         panelContenido.revalidate();
         panelContenido.repaint();
     }
+=======
+// AGREGAMOS EL TERCER PARÁMETRO AQUÍ: VerEncuestasPanel panelPadre
+public ContestarEncuestaFrame(Usuario usuario, Encuesta encuesta, VerEncuestasPanel panelPadre) {
+    // Esto evita que se cierre toda la app, solo cierra esta ventana
+    setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    
+    initComponents(); // Primero iniciamos componentes visuales
+    
+    this.usuario = usuario;
+    this.encuesta = encuesta;
+    this.panelPadre = panelPadre;
+
+    setTitle("Contestando: " + this.encuesta.getTitulo());
+
+    // Carga de preguntas (Código corregido anteriormente)
+    com.mycompany.proyecto_u1.services.EncuestaService service = new com.mycompany.proyecto_u1.services.EncuestaService();
+    java.util.ArrayList<Pregunta> preguntasDescargadas = service.getPreguntasDeEncuesta(this.encuesta.getId());
+    this.encuesta.setPreguntas(preguntasDescargadas);
+    
+    generarPreguntasGUI(); 
+}
+
+
+private void generarPreguntasGUI() {
+    
+    panelContenido.removeAll();
+    
+    
+    panelContenido.setBorder(new EmptyBorder(10, 10, 10, 10)); // Margen
+    
+    //  Recorremos las preguntas
+    for (Pregunta pregunta : this.encuesta.getPreguntas()) {
+        
+        if (pregunta.esCompleja()) {
+            
+            panelContenido.add(new ComplejaPreguntaPanel(pregunta));
+        } else {
+            
+            panelContenido.add(new PreguntaPanel(pregunta));
+        }
+    }
+    
+   
+    panelContenido.revalidate();
+    panelContenido.repaint();
+}
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
 
 
 
@@ -134,20 +187,36 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
     private void btnGuardarRespuestasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarRespuestasActionPerformed
   
     if (this.encuesta.getPreguntas() == null || this.encuesta.getPreguntas().isEmpty()) {
+<<<<<<< HEAD
         JOptionPane.showMessageDialog(this, "Error: No se cargaron las preguntas...", 
                 "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
+=======
+        JOptionPane.showMessageDialog(this, "Error: No se cargaron las preguntas...", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // 2. Preparar el objeto Respuesta
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     RespuestaEncuesta nuevaRespuesta = new RespuestaEncuesta(
         this.encuesta.getTitulo(),
         this.usuario.getNombreUsuario()
     );
+<<<<<<< HEAD
    
+=======
+    // IMPORTANTE: Ponemos el ID para que PHP no se pierda
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     nuevaRespuesta.setIdEncuesta(this.encuesta.getId());
 
     boolean todoContestado = true;
 
+<<<<<<< HEAD
     
+=======
+    // 3. Recolectar respuestas de los paneles
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     for (Component comp : panelContenido.getComponents()) {
         
         if (comp instanceof PreguntaPanel) {
@@ -173,12 +242,17 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
         }
     }
 
+<<<<<<< HEAD
    
+=======
+    // 4. Validar que todo esté contestado
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     if (!todoContestado) {
         JOptionPane.showMessageDialog(this, "Por favor, contesta todas las preguntas.", "Faltan respuestas", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
+<<<<<<< HEAD
    
     RespuestaService service = new RespuestaService();
     
@@ -198,6 +272,28 @@ public class ContestarEncuestaFrame extends javax.swing.JFrame {
         // --- ERROR ---
         JOptionPane.showMessageDialog(this, "Error al guardar en la BD.", "Error", JOptionPane.ERROR_MESSAGE);
         
+=======
+    // 5. ENVIAR A LA BASE DE DATOS
+    RespuestaService service = new RespuestaService();
+    
+    if (service.guardarRespuesta(nuevaRespuesta)) {
+        // --- ÉXITO ---
+        JOptionPane.showMessageDialog(this, "¡Gracias! Tus respuestas han sido guardadas.");
+
+        // --- AQUÍ REFRESCAMOS AL PADRE (SOLO SI SE GUARDÓ BIEN) ---
+        if (this.panelPadre != null) {
+            System.out.println("Refrescando panel padre...");
+            this.panelPadre.cargarEncuestas(); // <--- AQUÍ ESTABA EL ERROR (FALTABA EL PUNTO)
+        }
+        // ----------------------------------------------------------
+
+        this.dispose(); // Cerramos la ventana SOLO si salió bien
+        
+    } else {
+        // --- ERROR ---
+        JOptionPane.showMessageDialog(this, "Error al guardar en la BD.", "Error", JOptionPane.ERROR_MESSAGE);
+        // No cerramos la ventana (no ponemos dispose) para que el usuario intente de nuevo
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     }    
 
 

@@ -14,10 +14,19 @@ import org.apache.hc.core5.http.ContentType;
 
 public class RespuestaService {
 
+<<<<<<< HEAD
     
     private final String URL_BASE = "http://localhost/PROYECTO_U1/";
 
     
+=======
+    // Asegúrate de que esta IP/URL sea la correcta
+    private final String URL_BASE = "http://localhost/PROYECTO_U1/";
+
+    /**
+     * Envía una respuesta al servidor para ser guardada.
+     */
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public boolean guardarRespuesta(RespuestaEncuesta respuestaEncuesta) {
         try {
             Gson gson = new Gson();
@@ -44,24 +53,43 @@ public class RespuestaService {
         }
     }
 
+<<<<<<< HEAD
     
     public Map<String, int[]> getResultadosEncuesta(int idEncuesta) {
         Map<String, int[]> resultados = new HashMap<>();
         try {
             
+=======
+    /**
+     * Descarga los resultados (conteos) para las gráficas.
+     * Retorna un Mapa: "Texto Pregunta" -> [arreglo de votos]
+     */
+    public Map<String, int[]> getResultadosEncuesta(int idEncuesta) {
+        Map<String, int[]> resultados = new HashMap<>();
+        try {
+            // Solicitamos los resultados al PHP enviando el ID de la encuesta
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             String jsonResp = Request.post(URL_BASE + "resultados_get.php")
                     .bodyForm(Form.form().add("id_encuesta", String.valueOf(idEncuesta)).build())
                     .execute()
                     .returnContent()
                     .asString(StandardCharsets.UTF_8);
             
+<<<<<<< HEAD
            
+=======
+            // Si la respuesta está vacía o es nula, retornamos mapa vacío
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             if (jsonResp == null || jsonResp.trim().isEmpty()) {
                 return resultados;
             }
 
             Gson gson = new Gson();
+<<<<<<< HEAD
            
+=======
+            // Definimos que el JSON viene como un Mapa de String a Array de int
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
             Type tipoMapa = new TypeToken<Map<String, int[]>>() {}.getType();
             resultados = gson.fromJson(jsonResp, tipoMapa);
 
@@ -72,7 +100,13 @@ public class RespuestaService {
         return resultados;
     }
 
+<<<<<<< HEAD
     
+=======
+    /**
+     * Descarga la lista de todas las respuestas individuales (si se necesita para tablas).
+     */
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     public ArrayList<RespuestaEncuesta> getRespuestas() {
         ArrayList<RespuestaEncuesta> lista = new ArrayList<>();
         try {

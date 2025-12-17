@@ -26,12 +26,20 @@ public class AcusePanel extends javax.swing.JPanel {
         
         RespuestaService service = new RespuestaService();
         
+<<<<<<< HEAD
         
+=======
+        // 2. Obtener respuestas desde la BD
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
         ArrayList<RespuestaEncuesta> todasLasRespuestas = service.getRespuestas();
 
         DefaultListModel<RespuestaEncuesta> modelo = new DefaultListModel<>();
 
+<<<<<<< HEAD
        
+=======
+        // 3. Filtrar solo las de este usuario
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
         for (RespuestaEncuesta r : todasLasRespuestas) {
             if (r.getNombreUsuario().equals(this.usuario.getNombreUsuario())) {
                 modelo.addElement(r);

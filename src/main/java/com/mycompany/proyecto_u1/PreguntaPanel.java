@@ -95,21 +95,35 @@ public class PreguntaPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
   
 public Respuesta getRespuesta() {
+<<<<<<< HEAD
     
+=======
+    // Recorremos todos los botones (radio1, radio2, etc.) del grupo
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     for (Enumeration<AbstractButton> buttons = grupoLikert.getElements(); buttons.hasMoreElements();) {
         AbstractButton button = buttons.nextElement();
 
         if (button.isSelected()) {
+<<<<<<< HEAD
             
             int puntuacion = (int) button.getClientProperty("puntuacion");
             
+=======
+            // Si encontramos uno seleccionado, obtenemos la puntuación
+            int puntuacion = (int) button.getClientProperty("puntuacion");
+            // Creamos un objeto Respuesta con el texto de la pregunta y la puntuación
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
            return new Respuesta(this.pregunta.getId(), this.pregunta.getTexto(), puntuacion);
         }
     }
     return null; 
 }
     private void radio5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radio5ActionPerformed
+<<<<<<< HEAD
         
+=======
+        // TODO add your handling code here:
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
     }//GEN-LAST:event_radio5ActionPerformed
 
 

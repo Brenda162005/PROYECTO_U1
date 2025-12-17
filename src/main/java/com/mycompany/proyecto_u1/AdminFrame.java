@@ -1,6 +1,10 @@
 
 package com.mycompany.proyecto_u1;
+<<<<<<< HEAD
 import com.mycompany.proyecto_u1.models.Usuario; 
+=======
+import com.mycompany.proyecto_u1.models.Usuario; // Para saber quién es el admin
+>>>>>>> 49e4d57e077d868eb4b56f7a49fea803254f625c
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
